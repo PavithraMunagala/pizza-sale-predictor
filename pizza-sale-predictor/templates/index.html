@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Sales Prediction</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+    <h2 class="text-center">Pizza Sales Prediction</h2>
+
+    <form id="salesForm">
+        <label for="sales">Enter last 7 days' sales (comma-separated):</label>
+        <input type="text" id="sales" class="form-control" required>
+        <button type="submit" class="btn btn-primary mt-3">Predict</button>
+    </form>
+
+    <h3 class="mt-4">Predicted Sales:</h3>
+    <p><strong>Day 8:</strong> <span id="predDay8">-</span></p>
+    <p><strong>Day 9:</strong> <span id="predDay9">-</span></p>
+
+    <script>
+        document.getElementById("salesForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let salesInput = document.getElementById("sales").value;
+            let salesArray = salesInput.split(",").map(num => parseFloat(num.trim()));
+
+            fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sales: salesArray })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById("predDay8").innerText = `$${data.predicted_day_8}`;
+                    document.getElementById("predDay9").innerText = `$${data.predicted_day_9}`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html>
